@@ -2,34 +2,28 @@
   hosts: db
   become: yes
   vars:
-    login_host: nagaraju-78s.xyz
-
+    login_host: db.nagaraju-78s.xyz
   tasks:
-    - name: Install MySQL Server
-      ansible.builtin.dnf:
-        name: mysql-server
-        state: latest
+  - name: Install MySQL Server
+    ansible.builtin.dnf:
+      name: mysql-server 
+      state: latest
+  - name: Start and Enable MySQL-server
+    ansible.builtin.service:
+    name: mysqld
+    state: started
+    enable: yes
+  # Check the password is already set or not
 
-    - name: Start and Enable MySQL service
-      ansible.builtin.service:
-        name: mysqld
-        state: started
-        enabled: yes   # <-- corrected (enable → enabled)
-    - name: install python mysql dependencies 
-      ansible.builtin.pip:
-        name:
-        - PyMySQL
-        - cryptography 
-        executable: pip3.9 # Based on python version (pip3.11) --> like this
-    # Check the password is already set or not
-    - name: Check DB connection
-      community.mysql.mysql_info:
-        login_user: root
-        login_password: "ExpenseApp@1"
-        login_host: "{{ login_host }}"
-      ignore_errors: yes
-      register: mysql_connection_output
+  - name: Check DB connection
+    community.mysql.mysql_info: 
 
-    - name: Print DB connection output
-      ansible.builtin.debug:
-        var: mysql_connection_output
+      login_user: root
+      login_password: ExpenseApp@1 
+      login_host: "{{ login_host }}"
+    ignore_errors: yes
+    register: mysql_connection_output
+
+  - name: print output
+    ansible.builtin.debug:
+    msg: "Output: {{mysql_connection_output}} "
